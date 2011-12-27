@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pruebas</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.7.1.js"></script>
+    <script src="http://170.251.100.90/node/jquery.stopwatch.js"></script>
+    <script>
+        function jq(myid) {
+            return '#' + myid.replace(/(:|\.)/g,'\\$1');
+        }
+        var socket = io.connect('http://170.251.100.90');
+
+        /*Evento para las llamadas que entran en cola*/
+        socket.on('encola', function (data) {
+            adjuntarLlamada(data.id,data.origen,data.destino,data.cola,0);
+        });
+        socket.on('respondida', function (data) {
+            var temporizador = $(jq(data.id)).find('.tmpCola');
+            temporizador.stopwatch().stopwatch('stop');
+            $(jq(data.id)).find('ul').append('<li>Respondida por: '+data.extension+'</li>');
+        });
+        socket.on('llamadas', function (data) {
+            $.each(data, function(key,llamada){
+                var ahora = new Date;
+                var inicio_llamada = getDateFromString(llamada.inicio);
+                var diferencia = ahora.getTime() - inicio_llamada.getTime();
+                adjuntarLlamada(llamada.id,llamada.origen,llamada.destino,llamada.cola,diferencia);
+            });
+        });
+        function getDateFromString(dString){
+            //2011-12-26T13:55:49.377Z
+            var d = new Date();
+            m=dString.match(/(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d).(\d\d\d)Z/);
+            var now = new Date;
+            var diferencia = now.getTimezoneOffset()*-1;
+            diferencia = diferencia/60;
+            var hora = Number(m[4])+Number(diferencia);
+            d.setFullYear(m[1]);             // Sets the day of the month
+            d.setMonth(parseInt(m[2],10)-1); // Sets the month (from 0-11)
+            d.setDate(m[3]);                 // Sets the day of the month (from 1-31)
+            d.setHours(hora);                // Sets the hour (from 0-23)
+            d.setMinutes(m[5]);              // Set the minutes (from 0-59)
+            d.setSeconds(m[6]);              // Sets the seconds (from 0-59)
+            d.setMilliseconds(m[7]);         // Sets the milliseconds (from 0-999)
+            return d;
+        }
+        function adjuntarLlamada (id, origen, destino, cola, duracion){
+            var div = '<div id="'+ id +
+            '"><ul><li><strong>ID Única</strong>: '+ id +
+            '</li><li><strong>Origen</strong>: '+ origen +
+            '</li><li><strong>Destino</strong>: '+ destino +
+            '</li><li><strong>Cola</strong>: '+ cola +'</li>'+
+            '<li><strong>Tiempo en cola</strong>: <span class="tmpCola"></span></li></ul></div>';
+            $('#conectados').append(div);
+
+            /*Iniciamos el contador de tiempo*/
+            if (duracion > 0)
+                $(jq(id)+' .tmpCola').stopwatch({startTime: duracion}).stopwatch('start');
+            else
+                $(jq(id)+' .tmpCola').stopwatch().stopwatch('start');
+        }
+    </script>
+</head>
+<body>
+<div id="conectados">
+
+</div>
+
+<!-- Add your content here-->
+
+</body>
+</html>
