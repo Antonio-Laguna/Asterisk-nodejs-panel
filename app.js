@@ -3,6 +3,7 @@ var app = require('express').createServer()
 app.listen(8080);
 var llamadas = [];
 
+app.use("/assets", express.static(__dirname + '/assets'));
 /*Rutas*/
 app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
