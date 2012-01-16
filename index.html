@@ -1,19 +1,103 @@
 <!DOCTYPE html>
-<html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="es"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="es"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="es"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="es"> <!--<![endif]-->
 <head>
-    <title>Pruebas</title>
+	<meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width" />
+    <title>JavaScript Operator Pannel</title>
+    <!-- Included CSS Files -->
+	<link rel="stylesheet" href="assets/stylesheets/foundation.css">
+	<link rel="stylesheet" href="assets/stylesheets/app.css">
+    <!--[if lt IE 9]>
+		<link rel="stylesheet" href="assets/stylesheets/ie.css">
+	<![endif]-->
+	<!-- IE Fix for HTML5 Tags -->
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+    <!-- Including necessary js -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.7.1.js"></script>
     <script src="/assets/js/jquery.stopwatch.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <!-- JOP Pannel's logic -->
     <script>
-        function jq(myid) {
-            return '#' + myid.replace(/(:|\.)/g,'\\$1');
-        }
         var socket = io.connect('http://170.251.100.90');
+        socket.on('logAgent', function (agente) {
+            agenteLogado(agente);
+        });
+        socket.on('unLogAgent', function (agente) {
+            agenteDeslogado(agente);
+        });
+        socket.on('changeEvent', function (data) {
+            cambiarEstado(data.agent,data.status, data.queue);
+        });
+        socket.on('currentStatus', function (data){
+            $.each(data.queues.queues, function (key, cola){
+                anadirCola(cola);
+            });
+            llamadas = data.currentCalls;
+            actualizarPrimario();
+
+            $.each(data.agents, function (key, agente){
+                agenteLogado(agente);
+            });
+        });
+        socket.on('callInOrOutQueue', function (data){
+            var queueDiv = $(jq('cola-'+data.queue));
+            if (data.type === 'in'){
+                llamadas++;
+                actualizarPrimario();
+            }
+            else if (data.type === 'abandoned'){
+                llamadas--;
+                actualizarPrimario();
+            }
+
+            var llamadasColaDiv = queueDiv.find('.llamadas-cola');
+            var tiempoLlamadasDiv = queueDiv.find('.tiempo-llamadas');
+            llamadasColaDiv.text(data.calls);
+
+            if (data.calls === 0){
+                tiempoLlamadasDiv.stopwatch('destroy').text('');
+                tiempoLlamadasDiv.removeAttr('style');
+            } else {
+                if (tiempoLlamadasDiv.text() === ''){ // No había antes llamadas
+                    tiempoLlamadasDiv.stopwatch({
+                        timeFormat: 'mm:ss',
+                        doSomethingAt: {
+                            firer: 45000,
+                            action: function(div){
+                                div.attr('style','color: #900200;')
+                            }
+                    }}).stopwatch('start');
+                }else{
+                    if (data.timeSince > 45000)
+                        tiempoLlamadasDiv.attr('style','color: #900200;');
+                    else
+                        tiempoLlamadasDiv.removeAttr('style');
+                    tiempoLlamadasDiv.stopwatch({
+                        timeFormat: 'mm:ss',
+                        startTime: data.timeSince,
+                        doSomethingAt: {
+                            firer: 45000,
+                            action: function(div){
+                                div.attr('style','color: #900200;')
+                            }
+                    }}).stopwatch('start');
+                }
+            }
+        });
 
         /*Evento para las llamadas que entran en cola*/
         socket.on('encola', function (data) {
             adjuntarLlamada(data.id,data.origen,data.destino,data.cola,0);
+        });
+
+        socket.on('Debug', function (debug) {
+            console.log(debug);
         });
         socket.on('respondida', function (data) {
             var temporizador = $(jq(data.id)).find('.tmpCola');
@@ -28,46 +112,105 @@
                 adjuntarLlamada(llamada.id,llamada.origen,llamada.destino,llamada.cola,diferencia);
             });
         });
-        function getDateFromString(dString){
-            //2011-12-26T13:55:49.377Z
-            var d = new Date();
-            m=dString.match(/(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d).(\d\d\d)Z/);
-            var now = new Date;
-            var diferencia = now.getTimezoneOffset()*-1;
-            diferencia = diferencia/60;
-            var hora = Number(m[4])+Number(diferencia);
-            d.setFullYear(m[1]);             // Sets the day of the month
-            d.setMonth(parseInt(m[2],10)-1); // Sets the month (from 0-11)
-            d.setDate(m[3]);                 // Sets the day of the month (from 1-31)
-            d.setHours(hora);                // Sets the hour (from 0-23)
-            d.setMinutes(m[5]);              // Set the minutes (from 0-59)
-            d.setSeconds(m[6]);              // Sets the seconds (from 0-59)
-            d.setMilliseconds(m[7]);         // Sets the milliseconds (from 0-999)
-            return d;
-        }
-        function adjuntarLlamada (id, origen, destino, cola, duracion){
-            var div = '<div id="'+ id +
-            '"><ul><li><strong>ID Única</strong>: '+ id +
-            '</li><li><strong>Origen</strong>: '+ origen +
-            '</li><li><strong>Destino</strong>: '+ destino +
-            '</li><li><strong>Cola</strong>: '+ cola +'</li>'+
-            '<li><strong>Tiempo en cola</strong>: <span class="tmpCola"></span></li></ul></div>';
-            $('#conectados').append(div);
+        socket.on('reload', function(data){
+            window.location.reload(true);
+        });
 
-            /*Iniciamos el contador de tiempo*/
-            if (duracion > 0)
-                $(jq(id)+' .tmpCola').stopwatch({startTime: duracion}).stopwatch('start');
-            else
-                $(jq(id)+' .tmpCola').stopwatch().stopwatch('start');
-        }
+        $(document).ready(function(){
+            $('#logar').click(function(e){
+                e.preventDefault();
+                $.get('/logAgent/1010');
+            });
+            $('#deslogar').click(function(e){
+                e.preventDefault();
+                $.get('/unLogAgent/1010');
+            });
+            $('#llamar').click(function(e){
+                e.preventDefault();
+                $.get('/answerCall/APPLUSCola/125235487080124/1010');
+            });
+            $('#hacerllamada').click(function(e){
+                e.preventDefault();
+                $.get('/externalCall/1010');
+            });
+
+            $('#colgar').click(function(e){
+                e.preventDefault();
+                $.get('/hangCall/cola/125235487080124/APPLUSCola');
+            });
+            $('#administrativo').click(function(e){
+                e.preventDefault();
+                $.get('/administrative/1010');
+            });
+            $('#nodisponible').click(function(e){
+                e.preventDefault();
+                $.get('/unavailable/1010');
+            });
+            $('#disponible').click(function(e){
+                e.preventDefault();
+                $.get('/available/1010');
+            });
+            $('#llamadaCola').click(function(e){
+                e.preventDefault();
+                $.get('/call/APPLUSCola/125235487080124');
+            });
+            $('#reload').click(function(e){
+                e.preventDefault();
+                $.get('/reload');
+            });
+        });
     </script>
 </head>
 <body>
-<div id="conectados">
+<!-- Barra superior -->
+    <div id="accentureBar" class="container">
+        <div class="row">
+            <div class="four columns">
+                <img src="assets/images/misc/accenture-logo.png">;
+            </div>
+            <div class="eight columns hide-on-phones">
+                <strong class="right">
+                    Iconos de los clientes
+                </strong>
+            </div>
+        </div>
+    </div>
+<!-- Barra superior -->
+<!-- Contenedor -->
+    <div class="container">
+            <div class="row">
+                <div class="nine columns" id="contenedorAgentes">
 
-</div>
+                </div>
+                <div class="three columns" id="widgetHolder">
+                    <ul class="block-grid two-up">
+                        <li><a href="#" id="logar" class="nice small radius blue button">Logar Agente</a></li>
+                        <li><a href="#" id="deslogar" class="nice small radius blue button">Deslogar Agente</a></li>
+                        <li><a href="#" id="llamar" class="nice small radius blue button">Recibir llamada</a></li>
+                        <li><a href="#" id="hacerllamada" class="nice small radius blue button">Hacer llamada</a></li>
+                        <li><a href="#" id="colgar" class="nice small radius blue button">Colgar llamada</a></li>
+                        <li><a href="#" id="administrativo" class="nice small radius blue button">Tiempo administrativo</a></li>
+                        <li><a href="#" id="nodisponible" class="nice small radius blue button">No disponible</a></li>
+                        <li><a href="#" id="disponible" class="nice small radius blue button">Disponible</a></li>
+                        <li><a href="#" id="llamadaCola" class="nice small radius blue button">Llamada a Cola</a></li>
+                        <li><a href="#" id="reload" class="nice small radius blue button">Reload</a></li>
+                    </ul>
+                    <div class="widget" id="ocupacion_primario">
+                        <header>
+                            <section>
+                                Ocupación del primario
+                            </section>
+                        </header>
+                        <section class="widget-body porcentaje">
+                            <div class="widget-inner" id="texto-porcentaje">
+                                0%
+                            </div>
+                        </section>
+                    </div>
 
-<!-- Add your content here-->
-
+                </div>
+            </div>
+    </div>
+<!-- Contenedor -->
 </body>
 </html>
