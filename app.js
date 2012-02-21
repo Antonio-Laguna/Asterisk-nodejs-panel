@@ -9,11 +9,11 @@ var Queue = require('./models/queues.js');
 var Agents = []; // This will hold agents
 /* Requiring and setting up MySQL Configuration*/
 var mysql = require('mysql');
-var PBX_DATABASE = 'centralita';
+var PBX_DATABASE = '';
 var mysql_client = mysql.createClient({
-    host: '170.251.100.10',
-    user: 'root',
-    password: '4cc3ntur3',
+    host: '',
+    user: '',
+    password: '',
     database: PBX_DATABASE
 });
 var calls = 0;
