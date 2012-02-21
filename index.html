@@ -19,8 +19,9 @@
 	<![endif]-->
     <!-- Including necessary js -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="http://code.jquery.com/jquery-1.7.1.js"></script>
+    <script src="/assets/js/jquery-1.7.1.min.js"></script>
     <script src="/assets/js/jquery.stopwatch.js"></script>
+    <script src="/assets/js/jquery-ui-1.8.17.custom.min.js"></script>
     <script src="/assets/js/app.js"></script>
     <!-- JOP Pannel's logic -->
     <script>
@@ -45,46 +46,41 @@
                 agenteLogado(agente);
             });
         });
+        socket.on('updatePrimary', function (data){
+            llamadas = data.calls;
+            actualizarPrimario();
+        });
         socket.on('callInOrOutQueue', function (data){
             var queueDiv = $(jq('cola-'+data.queue));
-            if (data.type === 'in'){
-                llamadas++;
-                actualizarPrimario();
-            }
-            else if (data.type === 'abandoned'){
-                llamadas--;
-                actualizarPrimario();
-            }
-
             var llamadasColaDiv = queueDiv.find('.llamadas-cola');
             var tiempoLlamadasDiv = queueDiv.find('.tiempo-llamadas');
             llamadasColaDiv.text(data.calls);
 
             if (data.calls === 0){
                 tiempoLlamadasDiv.stopwatch('destroy').text('');
-                tiempoLlamadasDiv.removeAttr('style');
+                tiempoLlamadasDiv.parent().parent().parent().parent().removeClass('alert');
             } else {
                 if (tiempoLlamadasDiv.text() === ''){ // No había antes llamadas
                     tiempoLlamadasDiv.stopwatch({
                         timeFormat: 'mm:ss',
                         doSomethingAt: {
-                            firer: 45000,
+                            firer: SLA_LLAM,
                             action: function(div){
-                                div.attr('style','color: #900200;')
+                                div.parent().parent().parent().parent().pulse('alert',500,5);
                             }
                     }}).stopwatch('start');
                 }else{
-                    if (data.timeSince > 45000)
-                        tiempoLlamadasDiv.attr('style','color: #900200;');
+                    if (data.timeSince > SLA_LLAM)
+                        tiempoLlamadasDiv.parent().parent().parent().parent().addClass('alert');
                     else
                         tiempoLlamadasDiv.removeAttr('style');
                     tiempoLlamadasDiv.stopwatch({
                         timeFormat: 'mm:ss',
                         startTime: data.timeSince,
                         doSomethingAt: {
-                            firer: 45000,
+                            firer: SLA_LLAM,
                             action: function(div){
-                                div.attr('style','color: #900200;')
+                                div.parent().parent().parent().parent().pulse('alert',500,5);
                             }
                     }}).stopwatch('start');
                 }

@@ -171,7 +171,7 @@ app.get('/available/:agentCode',function (req,res){
  */
 app.get('/call/:queue/:uniqueid',function (req,res){
     console.log ('Incoming call [%s] to queue %s', req.params.uniqueid, req.params.queue);
-    calls++;
+    updatePrimary(1);
     queues.dispatchCall({
         uniqueid: req.params.uniqueid,
         queue: req.params.queue,
@@ -230,7 +230,7 @@ app.get('/externalCall/:agentCode/:queue',function (req,res){
  */
 app.get('/hangCall/:type/:uniqueid/:agentOrQueue',function (req,res){
     console.log ('Call finished at %s', req.params.type);
-    calls--;
+    updatePrimary(-1);
 
     if (req.params.type === 'agente'){
         var pos_agent = arrayHelper.arrayObjectIndexOf(Agents, req.params.agentOrQueue, 'codAgente');
@@ -272,4 +272,8 @@ function sendCurrentStatus (io, socketid){
     status.currentCalls = calls;
 
     io.sockets.socket(socketid).emit('currentStatus', status);
+}
+function updatePrimary (qty){
+    calls = calls + qty;
+    io.sockets.emit('updatePrimary',{calls: calls});
 }

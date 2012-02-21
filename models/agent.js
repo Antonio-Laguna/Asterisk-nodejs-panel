@@ -24,14 +24,25 @@ function Agent(codAgente,nombre,apellido1,apellido2, queues, io){
     this.queues = this.getQueues(queues);
     io.sockets.emit('logAgent', this);
 }
-
+/*
+ * This functions calculate current times of the current status and / or the current call
+ *
+ * @timeHelper : The timeHelper which has the function that calculate times.
+ */
 Agent.prototype.calculateTimes = function(timerHelper){
     if (this.currentStatusTime != null)
         this.currentStatusTimeDiff = timerHelper.calculateTimeSince(this.currentStatusTime);
     if (this.currentCallTime != null)
         this.currentCallTimeDiff = timerHelper.calculateTimeSince(this.currentCallTime);
 };
-Agent.prototype.changeStatus = function(status, io, queue){
+/*
+ * This function change the status of the agent.
+ *
+ * @status : The new status (integer) should be a value between 1 and 5
+ * @io : The socket object in which will send info once the change has been made
+ * @queue : The current queue where the agent is talking
+ */
+Agent.prototype.changeStatus = function(status, io, queue, substract){
     if (status == 1){
         this.currentStatusTime = null;
         this.currentStatusTimeDiff = null;
@@ -54,6 +65,11 @@ Agent.prototype.changeStatus = function(status, io, queue){
     this.status = status;
     io.sockets.emit('changeEvent', {agent: this.codAgente, status: this.status, queue: this.currentTalkingQueue});
 };
+/*
+ * This function ends the current call
+ *
+ * @socket : The socket object in which will send info once the change has been made
+ */
 Agent.prototype.endCall = function (socket){
     if (this.prevStatus != 1)// Administrative time or unavailable
         this.changeStatus(this.prevStatus,socket,null);
@@ -61,6 +77,11 @@ Agent.prototype.endCall = function (socket){
         this.changeStatus(1,socket,null);
     this.currentTalkingQueue = null;
 };
+/*
+ * This functions will store the agent's queues in a property.
+ *
+ * @queues : The queues
+ */
 Agent.prototype.getQueues = function (queues){
     var array = [];
     for (var i=0, len = queues.length; i < len; i ++){
