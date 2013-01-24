@@ -1,0 +1,334 @@
+html {
+    background: #111314;
+    height: 100%;
+}
+body {
+    padding-top: 10px;
+    height: 0;
+    min-height: 0;
+}
+/* Colors */
+.green { color: #77AB13; }
+.red { color: #AE432E; }
+.orange { color: #B5712E; }
+
+#dashboard-container {
+    width: 960px;
+    margin:0 auto;
+}
+.widget {
+    background: #232526 url(/public/images/widget_grad.png) no-repeat 100% 0;
+    box-shadow: 2px 0 3px #0d0d0d, -2px 0 3px #0d0d0d, 0 3px 3px #0d0d0d, 0 -2px 3px #0d0d0d;
+    -moz-box-shadow: 2px 0 3px #0d0d0d, -2px 0 3px #0d0d0d, 0 3px 3px #0d0d0d, 0 -2px 3px #0d0d0d;
+    -webkit-box-shadow: 2px 0 3px #0d0d0d, -2px 0 3px #0d0d0d, 0 3px 3px #0d0d0d, 0 -2px 3px #0d0d0d;
+    font: 18px Arial;
+    color: #707275;
+    text-align: center;
+}
+.cabecera {
+    padding: 10px;
+    height: 70px;
+    margin-bottom: 2%;
+}
+.cabecera img {
+    display: block;
+    margin: 0 auto;
+    height: 50%;
+    margin-bottom: 18px
+}
+.cabecera h3 {
+    margin: 5px 0;
+}
+.widget > header {
+    border-bottom:1px solid #151617;
+    border-top:1px solid #323434;
+    height:17px;
+    overflow:hidden;
+    padding:10px 15px 11px;
+    line-height:100%;
+}
+.widget > header > section {
+    float: left;
+    color: #707275;
+    font-size: 18px;
+    text-transform: uppercase;
+    text-shadow: 0 -1px 1px black;
+}
+.widget > section {
+    border-top: 1px solid #303334;
+    border-bottom: 1px solid #151617;
+    padding: 0 15px;
+    color: #707275;
+    font-size: 12px;
+}
+.widget-body {
+    overflow: hidden;
+}
+.sla .widget-body {
+    min-height: 215px;
+}
+.widget-inner {
+    padding-top: 20px;
+}
+.stats-hour {
+    width: 100%;
+}
+.stats-hour th {
+    text-align: center;
+}
+
+.tabla {
+    float: left;
+    margin-right: 2%;
+    margin-bottom: 2%;
+}
+.stats {
+    width: 30%;
+}
+.tabla td {
+    text-align: center;
+}
+.slas-kpis {
+    width: 68%;
+    margin-right: 0;
+}
+.slas-kpis table {
+    font-size: 1.2em;
+}
+.slas-kpis td, .slas-kpis th {
+    line-height: 44px;
+}
+.sla {
+    width: 40%;
+    float: left;
+    margin-bottom: 2%;
+}
+.graph {
+    width: 100%;
+    float: left;
+    margin-bottom: 20px;
+}
+.graph .widget-body {
+    padding-bottom: 15px;
+}
+.graph .widget-inner {
+    height: 300px;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 18px;
+    color:#CCC;
+}
+table caption {
+    color:#FFF;
+}
+table th,
+table td {
+    padding: 8px;
+    line-height: 18px;
+    text-align: left;
+    vertical-align: top;
+    border-top: 1px solid #232323;
+}
+table th {
+    font-weight: bold;
+}
+table thead th {
+    background:#111;
+    color:#E5E5E5;
+    vertical-align: bottom;
+}
+table colgroup + thead tr:first-child th,
+table colgroup + thead tr:first-child td,
+table thead:first-child tr:first-child th,
+table thead:first-child tr:first-child td {
+    border-top: 0;
+}
+table tbody + tbody {
+    border-top: 2px solid #232323;
+}
+table.table-condensed th,
+table.table-condensed td {
+    padding: 4px 5px;
+}
+table.table-bordered {
+    border: 1px solid #232323;
+    border-left: 0;
+    border-collapse: separate;
+    *border-collapse: collapsed;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+table.table-bordered th,
+table.table-bordered td {
+    border-left: 1px solid #232323;
+}
+table.table-bordered thead:first-child tr:first-child th,
+table.table-bordered tbody:first-child tr:first-child th,
+table.table-bordered tbody:first-child tr:first-child td {
+    border-top: 0;
+}
+table.table-bordered thead:first-child tr:first-child th:first-child,
+table.table-bordered tbody:first-child tr:first-child td:first-child {
+    -webkit-border-radius: 4px 0 0 0;
+    -moz-border-radius: 4px 0 0 0;
+    border-radius: 4px 0 0 0;
+}
+table.table-bordered thead:first-child tr:first-child th:last-child,
+table.table-bordered tbody:first-child tr:first-child td:last-child {
+    -webkit-border-radius: 0 4px 0 0;
+    -moz-border-radius: 0 4px 0 0;
+    border-radius: 0 4px 0 0;
+}
+table.table-bordered thead:last-child tr:last-child th:first-child,
+table.table-bordered tbody:last-child tr:last-child td:first-child {
+    -webkit-border-radius: 0 0 0 4px;
+    -moz-border-radius: 0 0 0 4px;
+    border-radius: 0 0 0 4px;
+}
+table.table-bordered thead:last-child tr:last-child th:last-child,
+table.table-bordered tbody:last-child tr:last-child td:last-child {
+    -webkit-border-radius: 0 0 4px 0;
+    -moz-border-radius: 0 0 4px 0;
+    border-radius: 0 0 4px 0;
+}
+table.table-striped tbody tr:nth-child(odd) td,
+table.table-striped tbody tr:nth-child(odd) th {
+    background-color: #393939;
+}
+table tbody tr td,
+table tbody tr th,
+table tbody tr:hover td,
+table tbody tr:hover th {
+    background-color: #333;
+}
+.sla-row {
+    overflow: hidden;
+    padding: 15px;
+}
+.number {
+    font-size: 40px;
+}
+.sla .texto {
+    float: right;
+    font-size: 25px;
+    text-transform: uppercase;
+    padding: 15px 20px 0 0;
+}
+
+/**** TAB FOR SELECTING DATES ****/
+#tab {
+    width:40px;
+    height:50px;
+    position:fixed;
+    right:0;
+    top:25px;
+    display:block;
+    cursor:pointer;
+    background-color:#232526;
+    border-radius: 10px 0 0 10px;
+    padding: 5px 0 5px 5px;
+}
+#inner_tab {
+    border-radius: 5px 0 0 5px;
+    width: 100%;
+    height: 100%;
+    background: #CCC url('/public/images/arrow_posts_left.png') no-repeat center center;
+}
+#inner_tab:hover {
+    background-position: 5px 13px;
+}
+.expanded {
+    background: #CCC url('/public/images/arrow_posts_right.png') no-repeat center center !important;
+}
+.expanded:hover {
+    background-position: 11px 13px !important;
+}
+#panel {
+    position:fixed;
+    right:0;
+    top:25px;
+    height:250px;
+    width:0;
+    font: 18px Arial;
+    color: #707275;
+    text-align: center;
+    border-radius: 0 0 0 15px;
+}
+#panel h3 {
+    margin: 0;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+#panel .content {
+    width:320px;
+    margin: 5px auto;
+}
+
+#panel p{margin:.5em 20px;}
+#panel label{display:block;}
+#panel input, #panel textarea{
+    width:272px;
+    border:1px solid #111;
+    background:#282828;
+    padding:5px 3px;
+    color:#fff;
+}
+#panel textarea{
+    height:125px;
+    overflow:auto;
+}
+#panel p.submit{
+    text-align:right;
+}
+#panel button{
+    position: relative;
+    cursor: pointer;
+    font: bold 12px/normal 'Segoe UI', Arial, sans-serif;
+    color: #333;
+    text-decoration: none;
+    text-shadow: 1px 1px rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,.1);
+    padding: 5px 10px 6px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #91BD09
+    background-image: -moz-linear-gradient(rgba(255,255,255,0.2), rgba(0,0,0,0.2));
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255,255,255,0.2)), color-stop(100%, rgba(0,0,0,0.2)));
+    background-image: -webkit-linear-gradient(rgba(255,255,255,0.2), rgba(0,0,0,0.2));
+    background-image: -o-linear-gradient(rgba(255,255,255,0.2), rgba(0,0,0,0.2));
+    background-image: linear-gradient(rgba(255,255,255,0.2), rgba(0,0,0,0.2));
+    -webkit-box-shadow: inset 0px 1px rgba(255,255,255,0.6), 0px 0px 3px 0px rgba(0,0,0,.2);
+    -moz-box-shadow: inset 0px 1px rgba(255,255,255,0.6), 0px 0px 3px 0px rgba(0,0,0,.2);
+    box-shadow: inset 0px 1px rgba(255,255,255,0.6), 0px 0px 4px 0px rgba(0,0,0,.2);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    margin-right: 10px;
+}
+
+#panel button::-moz-focus-inner {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#panel button:hover, #panel button:active {
+    text-decoration: none;
+    background-color: #A0CF0C
+}
+
+#panel button:active {
+    top: 1px;
+    margin-bottom: 1px;
+    border-bottom-width: 1px;
+    background-color: #F9F9F9;
+    background-image: -moz-linear-gradient(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(0,0,0,0.2)), color-stop(100%, rgba(255,255,255,0.2)));
+    background-image: -webkit-linear-gradient(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
+    background-image: -o-linear-gradient(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
+    background-image: linear-gradient(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
+}

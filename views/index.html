@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="es"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="es"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="es"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="es"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width" />
+    <title>Panel Flaix</title>
+    <!-- Included CSS Files -->
+	<link rel="stylesheet" href="assets/stylesheets/foundation.css">
+	<link rel="stylesheet" href="assets/stylesheets/app.css">
+    <!--[if lt IE 9]>
+		<link rel="stylesheet" href="assets/stylesheets/ie.css">
+	<![endif]-->
+	<!-- IE Fix for HTML5 Tags -->
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+    <!-- Including necessary js -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!--<script src="/assets/js/jquery-1.7.1.min.js"></script>-->
+    <script src="http://code.jquery.com/jquery-1.7.1.js"></script>
+    <script src="/assets/js/handlebars.js"></script>
+    <script src="/assets/js/jquery.stopwatch.js"></script>
+    <script src="/assets/js/jquery-ui-1.8.17.custom.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+</head>
+<body>
+<!-- Barra superior -->
+    <div id="accentureBar" class="container">
+        <div class="row">
+            <div class="four columns">
+                <img src="assets/images/misc/accenture-logo.png">;
+            </div>
+            <div class="eight columns hide-on-phones">
+                <strong class="right">
+                    Iconos de los clientes
+                </strong>
+            </div>
+        </div>
+    </div>
+<!-- Barra superior -->
+<!-- Contenedor -->
+    <div class="container">
+        <div class="row">
+            <div class="nine columns" id="contenedorAgentes">
+
+            </div>
+            <div class="three columns" id="widgetHolder">
+                <ul class="block-grid two-up">
+                    <li><a href="#" id="logar" class="nice small radius blue button">Logar Agente</a></li>
+                    <li><a href="#" id="deslogar" class="nice small radius blue button">Deslogar Agente</a></li>
+                    <li><a href="#" id="llamar" class="nice small radius blue button">Recibir llamada</a></li>
+                    <li><a href="#" id="hacerllamada" class="nice small radius blue button">Hacer llamada</a></li>
+                    <li><a href="#" id="colgar" class="nice small radius blue button">Colgar llamada</a></li>
+                    <li><a href="#" id="administrativo" class="nice small radius blue button">Tiempo administrativo</a></li>
+                    <li><a href="#" id="nodisponible" class="nice small radius blue button">No disponible</a></li>
+                    <li><a href="#" id="disponible" class="nice small radius blue button">Disponible</a></li>
+                    <li><a href="#" id="llamadaCola" class="nice small radius blue button">Llamada a Cola</a></li>
+                    <li><a href="#" id="reload" class="nice small radius blue button">Reload</a></li>
+                </ul>
+                <div class="widget" id="ocupacion_primario">
+                    <header>
+                        <section>
+                            Ocupación del primario
+                        </section>
+                    </header>
+                    <section class="widget-body porcentaje">
+                        <div class="widget-inner" id="texto-porcentaje">
+                            0%
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+        </div>
+    </div>
+<script id="template-agente" type="text/x-handlebars-template">
+    <div id= "agente-{{codAgente}}" class="caja_agente">
+        <h2 class="cabecera gradiente-{{headingColor}}">{{name}}</h2>
+        <div class="cuerpo">
+            <div class="colas"></div>
+            <div class="tiempos"></div>
+        </div>
+    </div>
+</script>
+<script id="template-cola" type="text/x-handlebars-template">
+    <div id="cola-{{name}}" class="widget mini">
+        <header style="background: #{{color}};">
+            <section>
+                <div class="nombre-cola">{{name}}</div>
+            </section>
+        </header>
+        <section class="widget-body">
+            <div class="widget-inner">
+                <div class="status-cola">
+                    <div class="llamadas-cola">{{length this.calls}}</div>
+                    <div class="tiempo-llamadas"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</script>
+<script id="template-cola-agente" type="text/x-handlebars-template">
+    {{#each this}}
+    <span id="{{id}}" class="cola" style="{{style}}">{{text}}</span>
+    {{/each}}
+</script>
+<script src="/assets/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+	"name": "Panel Flaix",
+	"version": "0.5",
+	"private": true,
+	"author" : "Antonio Laguna Matías <a.laguna@funcion13.com>",
+	"description" : "A real-time interface to show calls, agents and queues from Asterisk",
+	"scripts": {
+		"start": "NODE_ENV=production forever start server.js",
+		"test": "NODE_ENV=development node server.js"
+	},
+	"dependencies": {
+		"async" : "0.1.X",
+		"cron" : "1.X",
+		"express": "3.0.X",
+		"forever" : "0.X.X",
+		"socket.io" : "0.9.X",
+		"mysql" : "2.0.X"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Belelros/JavaScript-Operator-Panel.git"
+	},
+	"license": "MIT",
+	"engines": {
+		"node": ">=0.6"
+	}
+}

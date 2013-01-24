@@ -5,13 +5,17 @@
 <!--[if gt IE 8]><!--> <html lang="es"> <!--<![endif]-->
 <head>
 	<meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width" />
-    <title>JavaScript Operator Pannel</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1.0, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Pannel Flaix</title>
     <!-- Included CSS Files -->
-	<link rel="stylesheet" href="assets/stylesheets/foundation.css">
-	<link rel="stylesheet" href="assets/stylesheets/app.css">
+	<link rel="stylesheet" href="public/stylesheets/foundation.css">
+	<link rel="stylesheet" href="public/stylesheets/app.css">
+    <link rel="stylesheet" href="public/stylesheets/tipTip.css">
     <!--[if lt IE 9]>
-		<link rel="stylesheet" href="assets/stylesheets/ie.css">
+		<link rel="stylesheet" href="public/stylesheets/ie.css">
 	<![endif]-->
 	<!-- IE Fix for HTML5 Tags -->
 	<!--[if lt IE 9]>
@@ -19,194 +23,133 @@
 	<![endif]-->
     <!-- Including necessary js -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/assets/js/jquery-1.7.1.min.js"></script>
-    <script src="/assets/js/jquery.stopwatch.js"></script>
-    <script src="/assets/js/jquery-ui-1.8.17.custom.min.js"></script>
-    <script src="/assets/js/app.js"></script>
-    <!-- JOP Pannel's logic -->
-    <script>
-        var socket = io.connect('http://170.251.100.90');
-        socket.on('logAgent', function (agente) {
-            agenteLogado(agente);
-        });
-        socket.on('unLogAgent', function (agente) {
-            agenteDeslogado(agente);
-        });
-        socket.on('changeEvent', function (data) {
-            cambiarEstado(data.agent,data.status, data.queue);
-        });
-        socket.on('currentStatus', function (data){
-            $.each(data.queues.queues, function (key, cola){
-                anadirCola(cola);
-            });
-            llamadas = data.currentCalls;
-            actualizarPrimario();
-
-            $.each(data.agents, function (key, agente){
-                agenteLogado(agente);
-            });
-        });
-        socket.on('updatePrimary', function (data){
-            llamadas = data.calls;
-            actualizarPrimario();
-        });
-        socket.on('callInOrOutQueue', function (data){
-            var queueDiv = $(jq('cola-'+data.queue));
-            var llamadasColaDiv = queueDiv.find('.llamadas-cola');
-            var tiempoLlamadasDiv = queueDiv.find('.tiempo-llamadas');
-            llamadasColaDiv.text(data.calls);
-
-            if (data.calls === 0){
-                tiempoLlamadasDiv.stopwatch('destroy').text('');
-                tiempoLlamadasDiv.parent().parent().parent().parent().removeClass('alert');
-            } else {
-                if (tiempoLlamadasDiv.text() === ''){ // No había antes llamadas
-                    tiempoLlamadasDiv.stopwatch({
-                        timeFormat: 'mm:ss',
-                        doSomethingAt: {
-                            firer: SLA_LLAM,
-                            action: function(div){
-                                div.parent().parent().parent().parent().pulse('alert',500,5);
-                            }
-                    }}).stopwatch('start');
-                }else{
-                    if (data.timeSince > SLA_LLAM)
-                        tiempoLlamadasDiv.parent().parent().parent().parent().addClass('alert');
-                    else
-                        tiempoLlamadasDiv.removeAttr('style');
-                    tiempoLlamadasDiv.stopwatch({
-                        timeFormat: 'mm:ss',
-                        startTime: data.timeSince,
-                        doSomethingAt: {
-                            firer: SLA_LLAM,
-                            action: function(div){
-                                div.parent().parent().parent().parent().pulse('alert',500,5);
-                            }
-                    }}).stopwatch('start');
-                }
-            }
-        });
-
-        /*Evento para las llamadas que entran en cola*/
-        socket.on('encola', function (data) {
-            adjuntarLlamada(data.id,data.origen,data.destino,data.cola,0);
-        });
-
-        socket.on('Debug', function (debug) {
-            console.log(debug);
-        });
-        socket.on('respondida', function (data) {
-            var temporizador = $(jq(data.id)).find('.tmpCola');
-            temporizador.stopwatch().stopwatch('stop');
-            $(jq(data.id)).find('ul').append('<li>Respondida por: '+data.extension+'</li>');
-        });
-        socket.on('llamadas', function (data) {
-            $.each(data, function(key,llamada){
-                var ahora = new Date;
-                var inicio_llamada = getDateFromString(llamada.inicio);
-                var diferencia = ahora.getTime() - inicio_llamada.getTime();
-                adjuntarLlamada(llamada.id,llamada.origen,llamada.destino,llamada.cola,diferencia);
-            });
-        });
-        socket.on('reload', function(data){
-            window.location.reload(true);
-        });
-
-        $(document).ready(function(){
-            $('#logar').click(function(e){
-                e.preventDefault();
-                $.get('/logAgent/1010');
-            });
-            $('#deslogar').click(function(e){
-                e.preventDefault();
-                $.get('/unLogAgent/1010');
-            });
-            $('#llamar').click(function(e){
-                e.preventDefault();
-                $.get('/answerCall/APPLUSCola/125235487080124/1010');
-            });
-            $('#hacerllamada').click(function(e){
-                e.preventDefault();
-                $.get('/externalCall/1010');
-            });
-
-            $('#colgar').click(function(e){
-                e.preventDefault();
-                $.get('/hangCall/cola/125235487080124/APPLUSCola');
-            });
-            $('#administrativo').click(function(e){
-                e.preventDefault();
-                $.get('/administrative/1010');
-            });
-            $('#nodisponible').click(function(e){
-                e.preventDefault();
-                $.get('/unavailable/1010');
-            });
-            $('#disponible').click(function(e){
-                e.preventDefault();
-                $.get('/available/1010');
-            });
-            $('#llamadaCola').click(function(e){
-                e.preventDefault();
-                $.get('/call/APPLUSCola/125235487080124');
-            });
-            $('#reload').click(function(e){
-                e.preventDefault();
-                $.get('/reload');
-            });
-        });
-    </script>
+    <script src="/public/javascripts/jquery-1.8.1.min.js"></script>
+    <script src="/public/javascripts/jquery.tipTip.minified.js"></script>
+    <script src="/public/javascripts/handlebars.js"></script>
+    <script src="/public/javascripts/jquery.stopwatch.js"></script>
+    <script src="/public/javascripts/jquery-ui-1.8.23.custom.min.js"></script>
 </head>
 <body>
 <!-- Barra superior -->
-    <div id="accentureBar" class="container">
+    <div id="companyBar" class="container">
         <div class="row">
             <div class="four columns">
-                <img src="assets/images/misc/accenture-logo.png">;
+                <img src="public/images/misc/company-logo.png" alt="Your Company" id="company-logo"/>
             </div>
-            <div class="eight columns hide-on-phones">
-                <strong class="right">
-                    Iconos de los clientes
-                </strong>
+            <div class="eight columns hide-on-phones logos-clientes">
+
             </div>
         </div>
     </div>
 <!-- Barra superior -->
 <!-- Contenedor -->
     <div class="container">
-            <div class="row">
-                <div class="nine columns" id="contenedorAgentes">
+        <div class="row">
+            <div class="nine columns" id="contenedorAgentes">
 
-                </div>
-                <div class="three columns" id="widgetHolder">
-                    <ul class="block-grid two-up">
-                        <li><a href="#" id="logar" class="nice small radius blue button">Logar Agente</a></li>
-                        <li><a href="#" id="deslogar" class="nice small radius blue button">Deslogar Agente</a></li>
-                        <li><a href="#" id="llamar" class="nice small radius blue button">Recibir llamada</a></li>
-                        <li><a href="#" id="hacerllamada" class="nice small radius blue button">Hacer llamada</a></li>
-                        <li><a href="#" id="colgar" class="nice small radius blue button">Colgar llamada</a></li>
-                        <li><a href="#" id="administrativo" class="nice small radius blue button">Tiempo administrativo</a></li>
-                        <li><a href="#" id="nodisponible" class="nice small radius blue button">No disponible</a></li>
-                        <li><a href="#" id="disponible" class="nice small radius blue button">Disponible</a></li>
-                        <li><a href="#" id="llamadaCola" class="nice small radius blue button">Llamada a Cola</a></li>
-                        <li><a href="#" id="reload" class="nice small radius blue button">Reload</a></li>
-                    </ul>
-                    <div class="widget" id="ocupacion_primario">
-                        <header>
-                            <section>
-                                Ocupación del primario
-                            </section>
-                        </header>
-                        <section class="widget-body porcentaje">
-                            <div class="widget-inner" id="texto-porcentaje">
-                                0%
-                            </div>
-                        </section>
-                    </div>
-
-                </div>
             </div>
+            <div class="three columns" id="widgetHolder">
+                <div class="widget widget-status" id="ocupacion_primario">
+                    <header>
+                        <section>
+                            Occupation
+                        </section>
+                    </header>
+                    <section class="widget-body porcentaje">
+                        <div class="widget-inner" id="texto-porcentaje">
+                            0%
+                        </div>
+                    </section>
+                </div>
+                <div class="widget widget-status" id="awaiting">
+                    <header>
+                        <section>
+                            Awaiting
+                        </section>
+                    </header>
+                    <section class="widget-body porcentaje">
+                        <div class="widget-inner" id="texto-awaiting">
+                            0
+                        </div>
+                    </section>
+                </div>
+                <div class="widget widget-status" id="talking">
+                    <header>
+                        <section>
+                            Talking
+                        </section>
+                    </header>
+                    <section class="widget-body porcentaje">
+                        <div class="widget-inner" id="texto-talking">
+                            0
+                        </div>
+                    </section>
+                </div>
+                <div class="two columns sim libre" id="sim_1"></div>
+                <div class="two columns sim libre" id="sim_2"></div>
+                <div class="two columns sim libre" id="sim_3"></div>
+                <div class="two columns sim libre" id="sim_4"></div>
+            </div>
+        </div>
     </div>
-<!-- Contenedor -->
+<script id="template-agente" type="text/x-handlebars-template">
+    {{#if visible}}
+    <div id= "agente-{{codAgente}}" class="caja_agente visible">
+    {{else}}
+    <div id= "agente-{{codAgente}}" class="caja_agente invisible">
+    {{/if}}
+        <h2 class="cabecera gradiente-{{headingColor}}">{{name}}<small>{{status}}</small>
+            <img src="public/images/trashcan.png" class="force-unlog"/>
+        </h2>
+        <div class="cuerpo">
+            <div class="colas"></div>
+            <div class="tiempos"></div>
+        </div>
+    </div>
+</script>
+<script id="template-cola" type="text/x-handlebars-template">
+    <div id="cola-{{name}}" class="widget mini caja-cola" data-cola="{{name}}">
+        <header style="background: #{{color}};">
+            <section>
+                <div class="llamadas-cola">({{num_calls}})</div>
+                <div class="agentes-cola">()</div>
+                <div class="nombre-cola">{{name}}</div>
+                <div class="tiempo-llamadas"></div>
+            </section>
+        </header>
+    </div>
+</script>
+<script id="template-cola-agente" type="text/x-handlebars-template">
+    {{#each this}}
+    <span id="{{id}}" class="cola" data-cola="{{queue}}" title="{{queue}}" style="{{style}}">{{text}}</span>
+    {{/each}}
+</script>
+
+<script id="template-alert-queue" type="text/x-handlebars-template">
+    <html>
+        <head>
+            <title>Queued calls at {{queue}}!</title>
+            <style>
+                body {
+                    background: #7C1F30;
+                    color: #FFF;
+                }
+                h1 {
+                    position: absolute;
+                    left: 22%;
+                    top: 38%;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Queued calls at {{queue}}!</h1>
+        </body>
+    </html>
+</script>
+
+
+
+
+<script src="/public/javascripts/script.js"></script>
 </body>
 </html>

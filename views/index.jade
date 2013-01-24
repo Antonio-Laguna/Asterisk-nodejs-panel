@@ -1,0 +1,116 @@
+extends layout
+
+block body
+	#panel.widget
+		.content
+			h3 Date selection
+			p
+				label(for='from') From
+				input#from(type='text', name='from', size='30')
+			p
+				label(for='to') To
+				input#to(type='text', name='to', size='30')
+			button#datetime Stats for date
+			button#realtime Today's stats
+	a#open-tab(href='#')
+		#tab
+			#inner_tab
+
+block content
+	.widget.cabecera
+		img(src='/images/misc/accenture-logo.png')
+		if (real_time)
+			h3 Realtime #{name}'s stats
+		else
+			if (range_date)
+				h3 #{name}'s stats from #{start_date.toDateString()} to #{end_date.toDateString()}
+			else
+				h3 #{name}'s stats for #{start_date.toDateString()}
+	.widget.tabla.stats
+		header
+			section Stats area
+		section.widget-body
+			.widget-inner
+				table.table-striped
+					tbody
+						tr
+							th Inbound calls
+							td#inbound-calls
+						tr
+							th Failed calls
+							td#failed-calls
+						tr
+							th Offered calls
+							td#offered-calls
+						tr
+							th Abandoned calls
+							td#abandoned-calls
+						tr
+							th Abandoned after #{sec_abandoned} seconds
+							td#abandoned-sla
+						tr
+							th Answered calls
+							td#answered-calls
+						tr
+							th Answered before #{sec_answered} seconds
+							td#answered-sla
+	.widget.tabla.slas-kpis
+		header
+			section SLAs & KPIs Area
+		section.widget-body
+			.widget-inner
+				table.table-striped
+					tbody
+						tr
+							th % calls answered in target time SLA (Target => #{perc_answered}%, #{sec_answered} secs)
+							td#sla-answering
+						tr
+							th Average response time SLA (Target < #{sec_answered} sec)
+							td#average-response
+						tr
+							th Abandoned calls SLA (Target <= #{perc_abandoned}%, #{sec_abandoned} secs)
+							td#sla-abandoned
+						tr
+							th Abandoned calls KPI
+							td#kpi-abandoned.number.orange
+	.widget.graph.first
+		header
+			section Graph area
+		section.widget-body
+			#graph-calls.widget-inner
+
+	.widget.tabla.stats-hour
+		header
+			section Stats per hour
+		section.widget-body
+			.widget-inner
+				table#stats-table.table-striped
+					thead
+						th Hour
+						th Answered
+						th Abandoned
+						th Service Level
+						th Abandon rate
+						th Average answer time
+						th Average abandon time
+					tbody
+
+	script
+		var client_name = '#{name}';
+		var real_time = #{real_time};
+		var range_date = #{range_date};
+		var perc_abandoned = '#{perc_abandoned}';
+		var sec_answered = '#{sec_answered}';
+		var perc_answered = '#{perc_answered}';
+		if (!real_time)
+			var loaded_stats = {
+				total_calls : #{total_calls},
+				total_offered_calls : #{total_offered_calls},
+				average_response_time : #{average_response_time},
+				failed_calls : #{failed_calls},
+				total_abandoned : #{total_abandoned},
+				abandoned_after_SLA : #{abandoned_after_SLA},
+				total_answered : #{total_answered},
+				answered_before_SLA : #{answered_before_SLA},
+				per_hour : !{JSON.stringify(per_hour)}
+			};
